@@ -26,7 +26,7 @@ var events = Object.assign(
   {},
   EventEmitter.prototype,
   {
-    trigger: function() {
+    trigger: function () {
       // alias this for backwards compatibility
       this.emit.apply(this, arguments);
     }
@@ -41,7 +41,7 @@ var levelDropdown;
 
 ///////////////////////////////////////////////////////////////////////
 
-var init = function() {
+var init = function () {
   /**
     * There is a decent amount of bootstrapping we need just to hook
     * everything up. The init() method takes on these responsibilities,
@@ -72,12 +72,12 @@ var init = function() {
   window.LocaleActions = LocaleActions;
   window.intl = intl;
 
-  $(window).on('beforeunload', function(e) {
+  $(window).on('beforeunload', function (e) {
     return GlobalStateStore.getIsSolvingLevel() ? 'you have a level in progress' : null;
   });
 };
 
-var vcsModeRefresh = function(eventData) {
+var vcsModeRefresh = function (eventData) {
   if (!window.$) { return; }
 
   var mode = eventData.mode;
@@ -88,7 +88,7 @@ var vcsModeRefresh = function(eventData) {
   var regex = new RegExp(otherMode, 'g');
 
   document.title = intl.str('learn-git-branching').replace(regex, displayMode);
-  $('span.vcs-mode-aware').each(function(i, el) {
+  $('span.vcs-mode-aware').each(function (i, el) {
     var text = $(el).text().replace(regex, displayMode);
     $(el).text(text);
   });
@@ -97,60 +97,60 @@ var vcsModeRefresh = function(eventData) {
   $('body').toggleClass('hgMode', !isGit);
 };
 
-var insertAlternateLinks = function(pageId) {
+var insertAlternateLinks = function (pageId) {
   // For now pageId is null, which would link to the main page.
   // In future if pageId is provided this method should link to a specific page
 
   // The value of the hreflang attribute identifies the language (in ISO 639-1 format)
   // and optionally a region (in ISO 3166-1 Alpha 2 format) of an alternate URL
 
-  var altLinks = LocaleStore.getSupportedLocales().map(function(langCode) {
+  var altLinks = LocaleStore.getSupportedLocales().map(function (langCode) {
     var url = "https://learngitbranching.js.org/?locale=" + langCode;
-    return '<link rel="alternate" hreflang="'+langCode+'" href="' + url +'" />';
+    return '<link rel="alternate" hreflang="' + langCode + '" href="' + url + '" />';
   });
   var defaultUrl = "https://learngitbranching.js.org/?locale=" + LocaleStore.getDefaultLocale();
-  altLinks.push('<link rel="alternate" hreflang="x-default" href="' + defaultUrl +'" />');
+  altLinks.push('<link rel="alternate" hreflang="x-default" href="' + defaultUrl + '" />');
   $('head').prepend(altLinks);
 
 };
 
-var intlRefresh = function() {
+var intlRefresh = function () {
   if (!window.$) { return; }
   var countryCode = LocaleStore.getLocale().split("_")[0];
   $("html").attr('lang', countryCode);
   $("meta[http-equiv='content-language']").attr("content", countryCode);
-  $('span.intl-aware').each(function(i, el) {
+  $('span.intl-aware').each(function (i, el) {
     var intl = require('../intl');
     var key = $(el).attr('data-intl');
     $(el).text(intl.str(key));
   });
 };
 
-var initRootEvents = function(eventBaton) {
+var initRootEvents = function (eventBaton) {
   // we always want to focus the text area to collect input
-  var focusTextArea = function() {
+  var focusTextArea = function () {
     $('#commandTextField').focus();
   };
   focusTextArea();
 
-  $(window).focus(function(e) {
+  $(window).focus(function (e) {
     eventBaton.trigger('windowFocus', e);
   });
-  $(document).click(function(e) {
+  $(document).click(function (e) {
     eventBaton.trigger('documentClick', e);
   });
-  $(document).bind('keydown', function(e) {
+  $(document).bind('keydown', function (e) {
     eventBaton.trigger('docKeydown', e);
   });
-  $(document).bind('keyup', function(e) {
+  $(document).bind('keyup', function (e) {
     eventBaton.trigger('docKeyup', e);
   });
-  $(window).on('resize', function(e) {
+  $(window).on('resize', function (e) {
     events.trigger('resize', e);
   });
 
-  eventBaton.stealBaton('docKeydown', function() { });
-  eventBaton.stealBaton('docKeyup', function() { });
+  eventBaton.stealBaton('docKeydown', function () { });
+  eventBaton.stealBaton('docKeyup', function () { });
 
   // the default action on window focus and document click is to just focus the text area
   eventBaton.stealBaton('windowFocus', focusTextArea);
@@ -158,10 +158,10 @@ var initRootEvents = function(eventBaton) {
 
   // but when the input is fired in the text area, we pipe that to whoever is
   // listenining
-  var makeKeyListener = function(name) {
-    return function() {
+  var makeKeyListener = function (name) {
+    return function () {
       var args = [name];
-      Array.prototype.slice.apply(arguments).forEach(function(arg) {
+      Array.prototype.slice.apply(arguments).forEach(function (arg) {
         args.push(arg);
       });
       eventBaton.trigger.apply(eventBaton, args);
@@ -173,14 +173,14 @@ var initRootEvents = function(eventBaton) {
   $(window).trigger('resize');
 };
 
-var initDemo = function(sandbox) {
+var initDemo = function (sandbox) {
   var params = util.parseQueryString(window.location.href);
 
   // being the smart programmer I am (not), I don't include a true value on demo, so
   // I have to check if the key exists here
   var commands;
   if (/(iPhone|iPod|iPad).*AppleWebKit/i.test(navigator.userAgent) || /android/i.test(navigator.userAgent)) {
-    sandbox.mainVis.customEvents.on('gitEngineReady', function() {
+    sandbox.mainVis.customEvents.on('gitEngineReady', function () {
       eventBaton.trigger('commandSubmitted', 'mobile alert');
     });
   }
@@ -242,7 +242,7 @@ var initDemo = function(sandbox) {
       url: 'https://api.github.com/gists/' + params.gist_level_id,
       type: 'GET',
       dataType: 'jsonp',
-      success: function(response) {
+      success: function (response) {
         var data = response.data || {};
         var files = data.files || {};
         if (!Object.keys(files).length) {
@@ -259,6 +259,116 @@ var initDemo = function(sandbox) {
         );
       }
     });
+  } else if (params.hasOwnProperty('gitflowdemo')) {
+    console.log('gitflowdemo detected!');
+    commands = [
+      "reset;",
+      "git commit -m \"Initial commit\";",
+      "git branch develop;",
+      "git checkout develop;",
+      "git commit -m \"Dev setup\";",
+      "delay 1000;",
+
+      "git checkout -b f-auth;",
+      "git commit -m \"feat: login form\";",
+      "git commit -m \"feat: oauth\";",
+      "git checkout develop;",
+      "delay 2000;",
+      "git merge f-auth --no-ff;",
+      "delay 1000;",
+
+      "git checkout -b release;",
+      "git commit -m \"rc: v1.0.0\";",
+      "delay 1000;",
+
+      "git checkout -b b-login;",
+      "git commit -m \"fix: bugs\";",
+      "git checkout release;",
+      "git merge b-login --no-ff;",
+      "delay 1000;",
+
+      "git checkout main;",
+      "git merge release --no-ff;",
+      "git tag v1.0.0;",
+      "git checkout develop;",
+      "git merge release --no-ff;",
+      "delay 1000;",
+
+      "git checkout main;",
+      "git checkout -b hotfix;",
+      "git commit -m \"fix: security\";",
+      "git checkout main;",
+      "git merge hotfix --no-ff;",
+      "git tag v1.0.1;",
+      "git checkout develop;",
+      "git merge hotfix --no-ff;"
+    ];
+
+  } else if (params.hasOwnProperty('demoFeature')) {
+    console.log('demoFeature detected!');
+    commands = [
+      "reset;",
+      "git commit -m \"Initial commit: Project setup\";",
+      "git branch develop;",
+      "git checkout develop;",
+      "git commit -m \"Setup development environment\";",
+      "delay 1000;",
+
+      "git checkout -b f-auth;",
+      "git commit -m \"feat(auth): add login form component\";",
+      "git commit -m \"feat(auth): implement OAuth integration\";",
+      "git commit -m \"feat(auth): add validation layers\";",
+      "git commit -m \"test(auth): add unit tests\";",
+      "git checkout develop;",
+      "delay 3000;",
+      "git merge f-auth --no-ff;"
+    ];
+
+  } else if (params.hasOwnProperty('demoBugfix')) {
+    console.log('demoBugfix detected!');
+    commands = [
+      "reset;",
+      "git commit -m \"Initial commit\";",
+      "git branch develop;",
+      "git checkout develop;",
+      "git commit -m \"Feature A\";",
+      "git commit -m \"Feature B\";",
+      "delay 1000;",
+
+      "git checkout -b release;",
+      "git commit -m \"chore(release): bump version\";",
+      "delay 1000;",
+
+      "git checkout -b b-login;",
+      "git commit -m \"fix: resolve login timeout\";",
+      "git commit -m \"test: add test case\";",
+      "git checkout release;",
+      "delay 2000;",
+      "git merge b-login --no-ff;"
+    ];
+
+  } else if (params.hasOwnProperty('demoHotfix')) {
+    console.log('demoHotfix detected!');
+    commands = [
+      "reset;",
+      "git commit -m \"Initial commit\";",
+      "git branch develop;",
+      "git commit -m \"Release v1.0.0\";",
+      "git tag v1.0.0;",
+      "git checkout develop;",
+      "git commit -m \"Dev work\";",
+      "delay 1000;",
+
+      "git checkout main;",
+      "git checkout -b hotfix;",
+      "git commit -m \"fix(security): patch vulnerability\";",
+      "git checkout main;",
+      "delay 2000;",
+      "git merge hotfix --no-ff;",
+      "git tag v1.0.1;",
+      "git checkout develop;",
+      "git merge hotfix --no-ff;"
+    ];
   } else if (!params.hasOwnProperty('NODEMO')) {
     commands = [
       "help;",
@@ -273,7 +383,7 @@ var initDemo = function(sandbox) {
       );*/
   }
   if (commands) {
-    sandbox.mainVis.customEvents.on('gitEngineReady', function() {
+    sandbox.mainVis.customEvents.on('gitEngineReady', function () {
       eventBaton.trigger('commandSubmitted', commands.join(''));
     });
   }
@@ -288,7 +398,7 @@ var initDemo = function(sandbox) {
 
   if (params.command) {
     var command = unescape(params.command);
-    sandbox.mainVis.customEvents.on('gitEngineReady', function() {
+    sandbox.mainVis.customEvents.on('gitEngineReady', function () {
       eventBaton.trigger('commandSubmitted', command);
     });
   }
@@ -344,23 +454,23 @@ function CommandUI() {
   );
 }
 
-exports.getEvents = function() {
+exports.getEvents = function () {
   return events;
 };
 
-exports.getSandbox = function() {
+exports.getSandbox = function () {
   return sandbox;
 };
 
-exports.getEventBaton = function() {
+exports.getEventBaton = function () {
   return eventBaton;
 };
 
-exports.getCommandUI = function() {
+exports.getCommandUI = function () {
   return commandUI;
 };
 
-exports.getLevelDropdown = function() {
+exports.getLevelDropdown = function () {
   return levelDropdown;
 };
 
